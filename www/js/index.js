@@ -33,7 +33,6 @@ var app = {
     // The scope of 'this' is the event. In order to call the 'receivedEvent'
     // function, we must explicitly call 'app.receivedEvent(...);'
     onDeviceReady: function() {
-        //alert('deviceready');
         console.log('deviceready');
         app.receivedEvent('deviceready');
 
@@ -41,27 +40,17 @@ var app = {
         db.executeSql("DROP TABLE IF EXISTS tt");
         db.executeSql("CREATE TABLE tt (data)");
 
-        // https://learn.jquery.com/ajax/working-with-jsonp/
         $.ajax({
             // THANKS: http://stackoverflow.com/a/8654078/1283667
             url: "https://api.github.com/users/litehelpers/repos",
+            dataType: "json",
 
-            // The name of the callback parameter, as specified by the YQL service
-            jsonp: "callback",
-
-            // Tell jQuery we're expecting JSONP
-            dataType: "jsonp",
-
-            // Work with the response
             success: function(res) {
               console.log('Got AJAX response: ' + JSON.stringify(res));
-              // github repo data:
-              var data = res.data;
-              console.log('store data: ' + JSON.stringify(data));
-
+              //alert('Got AJAX response');
               db.transaction(function(tx) {
                 // http://stackoverflow.com/questions/33240009/jquery-json-cordova-issue
-                $.each(data, function(i, item) {
+                $.each(res, function(i, item) {
                   console.log('item: ' + JSON.stringify(item));
                   tx.executeSql("INSERT INTO tt values (?)", JSON.stringify(item));
                 });
@@ -77,6 +66,7 @@ var app = {
             },
             error: function(e) {
                 console.log('ajax error: ' + JSON.stringify(e));
+                alert('ajax error: ' + JSON.stringify(e));
             }
         });
         console.log('sent ajax');
